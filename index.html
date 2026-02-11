@@ -2,29 +2,33 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>石头剪刀布 - 对战游戏</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
         
         .game-container {
             background: white;
             border-radius: 20px;
-            padding: 40px;
+            padding: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             max-width: 800px;
             width: 100%;
@@ -45,16 +49,17 @@
         h1 {
             text-align: center;
             color: #667eea;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-size: 1.8em;
         }
         
         .score-board {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
             background: #f7f9fc;
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
         }
         
@@ -63,13 +68,14 @@
         }
         
         .score-label {
-            font-size: 0.9em;
+            font-size: 0.75em;
             color: #666;
             margin-bottom: 5px;
+            white-space: nowrap;
         }
         
         .score-value {
-            font-size: 2em;
+            font-size: 1.8em;
             font-weight: bold;
             color: #667eea;
         }
@@ -78,8 +84,8 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin: 40px 0;
-            min-height: 200px;
+            margin: 20px 0;
+            min-height: 140px;
         }
         
         .player, .enemy {
@@ -88,32 +94,32 @@
         }
         
         .choice-display {
-            margin: 20px 0;
-            min-height: 120px;
+            margin: 10px 0;
+            min-height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
         
         .choice-display svg {
-            width: 100px;
-            height: 100px;
+            width: 70px;
+            height: 70px;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
         }
         
         .vs {
-            font-size: 2em;
+            font-size: 1.5em;
             font-weight: bold;
             color: #667eea;
-            margin: 0 20px;
+            margin: 0 10px;
         }
         
         .result-message {
             text-align: center;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: bold;
-            margin: 20px 0;
-            min-height: 40px;
+            margin: 15px 0;
+            min-height: 35px;
             color: #667eea;
         }
         
@@ -130,48 +136,49 @@
         }
         
         .choices {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+            padding: 0 5px;
         }
         
         .choice-btn {
             background: white;
             border: 3px solid #667eea;
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
         }
         
         .choice-btn svg {
-            width: 80px;
-            height: 80px;
+            width: 100%;
+            height: 60px;
             display: block;
-        }
-        
-        .choice-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
-            border-color: #764ba2;
+            pointer-events: none;
         }
         
         .choice-btn:active {
-            transform: translateY(-2px);
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.6);
         }
         
         .history {
-            margin-top: 40px;
-            max-height: 300px;
+            margin-top: 25px;
+            max-height: 250px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .history-title {
-            font-size: 1.3em;
+            font-size: 1.1em;
             color: #667eea;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-weight: bold;
         }
         
@@ -181,13 +188,14 @@
         
         .history-item {
             background: #f7f9fc;
-            padding: 12px 20px;
-            margin-bottom: 10px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
             border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             animation: fadeInItem 0.3s ease-out;
+            font-size: 0.9em;
         }
         
         @keyframes fadeInItem {
@@ -216,24 +224,26 @@
         .history-round {
             font-weight: bold;
             color: #666;
+            font-size: 0.85em;
         }
         
         .history-choices {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
         
         .history-choices svg {
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
         }
         
         .history-result {
             font-weight: bold;
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.8em;
+            white-space: nowrap;
         }
         
         .history-result.win {
@@ -261,12 +271,13 @@
             border-radius: 10px;
             font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
         }
         
-        .reset-btn:hover {
+        .reset-btn:active {
+            transform: scale(0.95);
             background: #cf1322;
-            transform: translateY(-2px);
         }
         
         .shake {
@@ -277,6 +288,101 @@
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             75% { transform: translateX(10px); }
+        }
+        
+        /* iPhone 15 Pro Max 特定优化 */
+        @media screen and (min-width: 430px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .score-value {
+                font-size: 2em;
+            }
+            
+            .choice-display svg {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .choice-btn svg {
+                height: 70px;
+            }
+        }
+        
+        /* 横屏优化 */
+        @media screen and (orientation: landscape) and (max-height: 500px) {
+            body {
+                padding: 5px;
+            }
+            
+            .game-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            
+            .battle-area {
+                min-height: 80px;
+                margin: 10px 0;
+            }
+            
+            .choice-display svg {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .choices {
+                margin: 10px 0;
+            }
+            
+            .choice-btn {
+                padding: 10px 5px;
+            }
+            
+            .choice-btn svg {
+                height: 40px;
+            }
+            
+            .history {
+                max-height: 150px;
+                margin-top: 15px;
+            }
+        }
+        
+        /* 小屏幕优化 */
+        @media screen and (max-width: 375px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .score-label {
+                font-size: 0.7em;
+            }
+            
+            .score-value {
+                font-size: 1.5em;
+            }
+            
+            .choice-display svg {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .choices {
+                gap: 8px;
+            }
+            
+            .choice-btn {
+                padding: 10px 5px;
+            }
+            
+            .choice-btn svg {
+                height: 50px;
+            }
         }
     </style>
 </head>
@@ -303,14 +409,14 @@
             <div class="player">
                 <div class="score-label">你的选择</div>
                 <div class="choice-display" id="playerChoice">
-                    <span style="font-size: 3em; color: #ccc;">❓</span>
+                    <span style="font-size: 2.5em; color: #ccc;">❓</span>
                 </div>
             </div>
             <div class="vs">VS</div>
             <div class="enemy">
                 <div class="score-label">敌人选择</div>
                 <div class="choice-display" id="enemyChoice">
-                    <span style="font-size: 3em; color: #ccc;">❓</span>
+                    <span style="font-size: 2.5em; color: #ccc;">❓</span>
                 </div>
             </div>
         </div>
@@ -321,13 +427,9 @@
             <button class="choice-btn" onclick="play('rock')" title="石头">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <g>
-                        <!-- 手套主体 - 蓝色 -->
                         <ellipse cx="50" cy="65" rx="28" ry="30" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
-                        <!-- 拇指 -->
                         <ellipse cx="30" cy="55" rx="12" ry="15" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
-                        <!-- 高光 -->
                         <ellipse cx="45" cy="55" rx="8" ry="10" fill="#AED6F1" opacity="0.6"/>
-                        <!-- 手腕 -->
                         <rect x="35" y="85" width="30" height="12" rx="3" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
                     </g>
                 </svg>
@@ -335,18 +437,12 @@
             <button class="choice-btn" onclick="play('scissors')" title="剪刀">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <g>
-                        <!-- 手掌 - 绿色 -->
                         <ellipse cx="50" cy="75" rx="22" ry="18" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
-                        <!-- 食指 -->
                         <ellipse cx="40" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(-15 40 35)"/>
-                        <!-- 中指 -->
                         <ellipse cx="60" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(15 60 35)"/>
-                        <!-- 其他手指 -->
                         <ellipse cx="35" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
                         <ellipse cx="65" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
-                        <!-- 高光 -->
                         <ellipse cx="45" cy="40" rx="5" ry="8" fill="#D5F4E6" opacity="0.6"/>
-                        <!-- 手腕 -->
                         <rect x="35" y="85" width="30" height="12" rx="3" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
                     </g>
                 </svg>
@@ -354,21 +450,13 @@
             <button class="choice-btn" onclick="play('paper')" title="布">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <g>
-                        <!-- 手掌 - 黄色 -->
                         <ellipse cx="50" cy="65" rx="25" ry="22" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
-                        <!-- 拇指 -->
                         <ellipse cx="25" cy="60" rx="10" ry="18" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(-30 25 60)"/>
-                        <!-- 食指 -->
                         <ellipse cx="38" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
-                        <!-- 中指 -->
                         <ellipse cx="50" cy="25" rx="9" ry="28" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
-                        <!-- 无名指 -->
                         <ellipse cx="62" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
-                        <!-- 小指 -->
                         <ellipse cx="72" cy="35" rx="8" ry="20" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(10 72 35)"/>
-                        <!-- 高光 -->
                         <ellipse cx="48" cy="55" rx="8" ry="10" fill="#FCF3CF" opacity="0.7"/>
-                        <!-- 手腕 -->
                         <rect x="35" y="80" width="30" height="15" rx="3" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
                     </g>
                 </svg>
@@ -529,10 +617,10 @@
                 
                 return `
                     <li class="history-item ${item.result}">
-                        <span class="history-round">第 ${item.round} 回合</span>
+                        <span class="history-round">第 ${item.round} 局</span>
                         <span class="history-choices">
                             ${choices[item.player].svg}
-                            <span style="margin: 0 5px;">vs</span>
+                            <span style="margin: 0 3px;">vs</span>
                             ${choices[item.enemy].svg}
                         </span>
                         <span class="history-result ${item.result}">${resultText}</span>
@@ -554,8 +642,8 @@
                 document.getElementById('playerWins').textContent = '0';
                 document.getElementById('enemyWins').textContent = '0';
                 document.getElementById('draws').textContent = '0';
-                document.getElementById('playerChoice').innerHTML = '<span style="font-size: 3em; color: #ccc;">❓</span>';
-                document.getElementById('enemyChoice').innerHTML = '<span style="font-size: 3em; color: #ccc;">❓</span>';
+                document.getElementById('playerChoice').innerHTML = '<span style="font-size: 2.5em; color: #ccc;">❓</span>';
+                document.getElementById('enemyChoice').innerHTML = '<span style="font-size: 2.5em; color: #ccc;">❓</span>';
                 document.getElementById('resultMessage').textContent = '';
                 document.getElementById('resultMessage').className = 'result-message';
                 
