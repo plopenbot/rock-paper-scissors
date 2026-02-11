@@ -2,9 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>石头剪刀布 - 对战游戏</title>
     <style>
         * {
@@ -12,6 +13,13 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        
+        html {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            touch-action: manipulation;
         }
         
         body {
@@ -23,6 +31,7 @@
             justify-content: center;
             padding: 10px;
             overflow-x: hidden;
+            touch-action: manipulation;
         }
         
         .game-container {
@@ -650,6 +659,29 @@
                 renderHistory();
             }
         }
+        
+        // 禁用双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+        
+        // 禁用手势缩放
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+        
+        document.addEventListener('gesturechange', function(event) {
+            event.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', function(event) {
+            event.preventDefault();
+        });
     </script>
 </body>
 </html>
