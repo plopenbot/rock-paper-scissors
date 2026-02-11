@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>石头剪刀布 - 对战游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            background: #f7f9fc;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .battle-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            min-height: 200px;
+        }
+        
+        .player, .enemy {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .choice-display {
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .choice-display svg {
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+        
+        .vs {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0 20px;
+        }
+        
+        .result-message {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 40px;
+            color: #667eea;
+        }
+        
+        .result-message.win {
+            color: #52c41a;
+        }
+        
+        .result-message.lose {
+            color: #f5222d;
+        }
+        
+        .result-message.draw {
+            color: #faad14;
+        }
+        
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .choice-btn {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .choice-btn svg {
+            width: 80px;
+            height: 80px;
+            display: block;
+        }
+        
+        .choice-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.6);
+            border-color: #764ba2;
+        }
+        
+        .choice-btn:active {
+            transform: translateY(-2px);
+        }
+        
+        .history {
+            margin-top: 40px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .history-list {
+            list-style: none;
+        }
+        
+        .history-item {
+            background: #f7f9fc;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeInItem 0.3s ease-out;
+        }
+        
+        @keyframes fadeInItem {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .history-item.win {
+            border-left: 4px solid #52c41a;
+        }
+        
+        .history-item.lose {
+            border-left: 4px solid #f5222d;
+        }
+        
+        .history-item.draw {
+            border-left: 4px solid #faad14;
+        }
+        
+        .history-round {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .history-choices {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .history-choices svg {
+            width: 30px;
+            height: 30px;
+        }
+        
+        .history-result {
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .history-result.win {
+            background: #52c41a;
+            color: white;
+        }
+        
+        .history-result.lose {
+            background: #f5222d;
+            color: white;
+        }
+        
+        .history-result.draw {
+            background: #faad14;
+            color: white;
+        }
+        
+        .reset-btn {
+            display: block;
+            margin: 20px auto 0;
+            background: #f5222d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: #cf1322;
+            transform: translateY(-2px);
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎮 石头剪刀布</h1>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">玩家胜利</div>
+                <div class="score-value" id="playerWins">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">平局</div>
+                <div class="score-value" id="draws">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">敌人胜利</div>
+                <div class="score-value" id="enemyWins">0</div>
+            </div>
+        </div>
+        
+        <div class="battle-area">
+            <div class="player">
+                <div class="score-label">你的选择</div>
+                <div class="choice-display" id="playerChoice">
+                    <span style="font-size: 3em; color: #ccc;">❓</span>
+                </div>
+            </div>
+            <div class="vs">VS</div>
+            <div class="enemy">
+                <div class="score-label">敌人选择</div>
+                <div class="choice-display" id="enemyChoice">
+                    <span style="font-size: 3em; color: #ccc;">❓</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="result-message" id="resultMessage"></div>
+        
+        <div class="choices">
+            <button class="choice-btn" onclick="play('rock')" title="石头">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <!-- 手套主体 - 蓝色 -->
+                        <ellipse cx="50" cy="65" rx="28" ry="30" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                        <!-- 拇指 -->
+                        <ellipse cx="30" cy="55" rx="12" ry="15" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                        <!-- 高光 -->
+                        <ellipse cx="45" cy="55" rx="8" ry="10" fill="#AED6F1" opacity="0.6"/>
+                        <!-- 手腕 -->
+                        <rect x="35" y="85" width="30" height="12" rx="3" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                    </g>
+                </svg>
+            </button>
+            <button class="choice-btn" onclick="play('scissors')" title="剪刀">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <!-- 手掌 - 绿色 -->
+                        <ellipse cx="50" cy="75" rx="22" ry="18" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
+                        <!-- 食指 -->
+                        <ellipse cx="40" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(-15 40 35)"/>
+                        <!-- 中指 -->
+                        <ellipse cx="60" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(15 60 35)"/>
+                        <!-- 其他手指 -->
+                        <ellipse cx="35" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
+                        <ellipse cx="65" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
+                        <!-- 高光 -->
+                        <ellipse cx="45" cy="40" rx="5" ry="8" fill="#D5F4E6" opacity="0.6"/>
+                        <!-- 手腕 -->
+                        <rect x="35" y="85" width="30" height="12" rx="3" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
+                    </g>
+                </svg>
+            </button>
+            <button class="choice-btn" onclick="play('paper')" title="布">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <!-- 手掌 - 黄色 -->
+                        <ellipse cx="50" cy="65" rx="25" ry="22" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <!-- 拇指 -->
+                        <ellipse cx="25" cy="60" rx="10" ry="18" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(-30 25 60)"/>
+                        <!-- 食指 -->
+                        <ellipse cx="38" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <!-- 中指 -->
+                        <ellipse cx="50" cy="25" rx="9" ry="28" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <!-- 无名指 -->
+                        <ellipse cx="62" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <!-- 小指 -->
+                        <ellipse cx="72" cy="35" rx="8" ry="20" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(10 72 35)"/>
+                        <!-- 高光 -->
+                        <ellipse cx="48" cy="55" rx="8" ry="10" fill="#FCF3CF" opacity="0.7"/>
+                        <!-- 手腕 -->
+                        <rect x="35" y="80" width="30" height="15" rx="3" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="history">
+            <div class="history-title">对局记录</div>
+            <ul class="history-list" id="historyList">
+                <li style="text-align: center; color: #999;">暂无对局记录</li>
+            </ul>
+        </div>
+        
+        <button class="reset-btn" onclick="resetGame()">重置游戏</button>
+    </div>
+
+    <script>
+        const choices = {
+            rock: { 
+                name: '石头',
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <ellipse cx="50" cy="65" rx="28" ry="30" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                        <ellipse cx="30" cy="55" rx="12" ry="15" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                        <ellipse cx="45" cy="55" rx="8" ry="10" fill="#AED6F1" opacity="0.6"/>
+                        <rect x="35" y="85" width="30" height="12" rx="3" fill="#5DADE2" stroke="#2E86C1" stroke-width="3"/>
+                    </g>
+                </svg>`
+            },
+            scissors: { 
+                name: '剪刀',
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <ellipse cx="50" cy="75" rx="22" ry="18" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
+                        <ellipse cx="40" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(-15 40 35)"/>
+                        <ellipse cx="60" cy="35" rx="10" ry="28" fill="#82E0AA" stroke="#28B463" stroke-width="3" transform="rotate(15 60 35)"/>
+                        <ellipse cx="35" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
+                        <ellipse cx="65" cy="75" rx="8" ry="12" fill="#82E0AA" stroke="#28B463" stroke-width="2"/>
+                        <ellipse cx="45" cy="40" rx="5" ry="8" fill="#D5F4E6" opacity="0.6"/>
+                        <rect x="35" y="85" width="30" height="12" rx="3" fill="#82E0AA" stroke="#28B463" stroke-width="3"/>
+                    </g>
+                </svg>`
+            },
+            paper: { 
+                name: '布',
+                svg: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g>
+                        <ellipse cx="50" cy="65" rx="25" ry="22" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <ellipse cx="25" cy="60" rx="10" ry="18" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(-30 25 60)"/>
+                        <ellipse cx="38" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <ellipse cx="50" cy="25" rx="9" ry="28" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <ellipse cx="62" cy="28" rx="9" ry="25" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                        <ellipse cx="72" cy="35" rx="8" ry="20" fill="#F9E79F" stroke="#F4D03F" stroke-width="3" transform="rotate(10 72 35)"/>
+                        <ellipse cx="48" cy="55" rx="8" ry="10" fill="#FCF3CF" opacity="0.7"/>
+                        <rect x="35" y="80" width="30" height="15" rx="3" fill="#F9E79F" stroke="#F4D03F" stroke-width="3"/>
+                    </g>
+                </svg>`
+            }
+        };
+        
+        let stats = {
+            playerWins: 0,
+            enemyWins: 0,
+            draws: 0,
+            round: 0
+        };
+        
+        let history = [];
+        
+        function play(playerChoice) {
+            stats.round++;
+            
+            // 敌人随机选择
+            const choiceKeys = Object.keys(choices);
+            const enemyChoice = choiceKeys[Math.floor(Math.random() * choiceKeys.length)];
+            
+            // 显示选择
+            document.getElementById('playerChoice').innerHTML = choices[playerChoice].svg;
+            document.getElementById('enemyChoice').innerHTML = choices[enemyChoice].svg;
+            
+            // 判断胜负
+            const result = determineWinner(playerChoice, enemyChoice);
+            
+            // 更新统计
+            if (result === 'win') {
+                stats.playerWins++;
+            } else if (result === 'lose') {
+                stats.enemyWins++;
+            } else {
+                stats.draws++;
+            }
+            
+            // 更新分数显示
+            document.getElementById('playerWins').textContent = stats.playerWins;
+            document.getElementById('enemyWins').textContent = stats.enemyWins;
+            document.getElementById('draws').textContent = stats.draws;
+            
+            // 显示结果消息
+            const resultMessage = document.getElementById('resultMessage');
+            resultMessage.className = 'result-message ' + result;
+            
+            if (result === 'win') {
+                resultMessage.textContent = '🎉 你赢了！';
+            } else if (result === 'lose') {
+                resultMessage.textContent = '😢 你输了！';
+                document.querySelector('.battle-area').classList.add('shake');
+                setTimeout(() => {
+                    document.querySelector('.battle-area').classList.remove('shake');
+                }, 500);
+            } else {
+                resultMessage.textContent = '🤝 平局！';
+            }
+            
+            // 添加到历史记录
+            addToHistory(playerChoice, enemyChoice, result);
+        }
+        
+        function determineWinner(player, enemy) {
+            if (player === enemy) return 'draw';
+            
+            if (
+                (player === 'rock' && enemy === 'scissors') ||
+                (player === 'scissors' && enemy === 'paper') ||
+                (player === 'paper' && enemy === 'rock')
+            ) {
+                return 'win';
+            }
+            
+            return 'lose';
+        }
+        
+        function addToHistory(playerChoice, enemyChoice, result) {
+            const historyItem = {
+                round: stats.round,
+                player: playerChoice,
+                enemy: enemyChoice,
+                result: result
+            };
+            
+            history.unshift(historyItem);
+            
+            renderHistory();
+        }
+        
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<li style="text-align: center; color: #999;">暂无对局记录</li>';
+                return;
+            }
+            
+            historyList.innerHTML = history.map(item => {
+                let resultText = '';
+                if (item.result === 'win') resultText = '胜利';
+                else if (item.result === 'lose') resultText = '失败';
+                else resultText = '平局';
+                
+                return `
+                    <li class="history-item ${item.result}">
+                        <span class="history-round">第 ${item.round} 回合</span>
+                        <span class="history-choices">
+                            ${choices[item.player].svg}
+                            <span style="margin: 0 5px;">vs</span>
+                            ${choices[item.enemy].svg}
+                        </span>
+                        <span class="history-result ${item.result}">${resultText}</span>
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        function resetGame() {
+            if (confirm('确定要重置游戏吗？所有记录将被清空！')) {
+                stats = {
+                    playerWins: 0,
+                    enemyWins: 0,
+                    draws: 0,
+                    round: 0
+                };
+                history = [];
+                
+                document.getElementById('playerWins').textContent = '0';
+                document.getElementById('enemyWins').textContent = '0';
+                document.getElementById('draws').textContent = '0';
+                document.getElementById('playerChoice').innerHTML = '<span style="font-size: 3em; color: #ccc;">❓</span>';
+                document.getElementById('enemyChoice').innerHTML = '<span style="font-size: 3em; color: #ccc;">❓</span>';
+                document.getElementById('resultMessage').textContent = '';
+                document.getElementById('resultMessage').className = 'result-message';
+                
+                renderHistory();
+            }
+        }
+    </script>
+</body>
+</html>
